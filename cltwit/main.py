@@ -66,7 +66,7 @@ def printout(text, colour=WHITE):
         seq = "\x1b[1;%dm" % (30+colour) + text + "\x1b[0m"
         sys.stdout.write(seq)
     else:
-        sys.stdout.write(text)
+        sys.stdout.write(text.encode("Utf-8"))
 
 
 def checkdb():
