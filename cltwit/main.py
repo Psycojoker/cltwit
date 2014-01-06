@@ -6,16 +6,18 @@ Author : Jérôme Launay
 Date : 2013
 """
 
+import os
+import sys
+import getopt
+import gettext
+import sqlite3
+import webbrowser
+import ConfigParser
+
 from sqlite2csv import sqlite2csv
 from cltwitdb import cltwitdb
 from utils import LocalTimezone
 from cltwitreport import TweetsReport
-import ConfigParser
-import webbrowser
-import os, sys
-import getopt
-import gettext
-import sqlite3
 
 APP_NAME = 'cltwit'
 LOC_PATH = os.path.dirname(__file__) + '/locale'
