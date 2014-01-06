@@ -8,6 +8,7 @@ Date : 2013
 
 import os
 import sys
+import re
 import getopt
 import gettext
 import sqlite3
@@ -380,7 +381,7 @@ def main(argv=None):
             # Se connecter à l'api twitter
             api, auth, twittername = login()
             # Envoyer un tweet
-            if len(value) < 141:
+            if len(re.sub("https://\S*", "X"*23, re.sub("http://\S*", "X"*22, value))) < 141:
                 api.update_status(value)
                 print("\n")
                 printout(_(u"Tweet envoyé !"), GREEN)
