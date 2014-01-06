@@ -45,12 +45,13 @@ __Local__ = LocalTimezone()
 # gestion des couleurs sur le terminal
 BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
 
+
 def has_colours(stream):
     """Vérifier la prise en charge des couleurs par le terminal"""
     if not hasattr(stream, "isatty"):
         return False
     if not stream.isatty():
-        return False # couleurs auto sur un TTY
+        return False  # couleurs auto sur un TTY
     try:
         import curses
         curses.setupterm()
@@ -65,7 +66,7 @@ __has_colours__ = has_colours(sys.stdout)
 def printout(text, colour=WHITE):
     """Print en couleur"""
     if __has_colours__:
-        seq = "\x1b[1;%dm" % (30+colour) + text + "\x1b[0m"
+        seq = "\x1b[1;%dm" % (30 + colour) + text + "\x1b[0m"
         sys.stdout.write(seq)
     else:
         sys.stdout.write(text.encode("Utf-8"))
@@ -78,16 +79,17 @@ def checkdb():
 pour créer une base de données de vos tweets."), RED)
         sys.exit()
 
+
 def checkconfig():
     """Récupérer la configuration ou la créer"""
     # On ouvre le fichier de conf
     config = ConfigParser.RawConfigParser()
     try:
         config.read(__configfile__)
-        if config.has_option('twitterapi','access_token'):
-            access_token = config.get('twitterapi','access_token')
-        if config.has_option('twitterapi','access_password'):
-            access_password = config.get('twitterapi','access_password')
+        if config.has_option('twitterapi', 'access_token'):
+            access_token = config.get('twitterapi', 'access_token')
+        if config.has_option('twitterapi', 'access_password'):
+            access_password = config.get('twitterapi', 'access_password')
     except:
         pass
 
@@ -95,15 +97,15 @@ def checkconfig():
                                "AHQ5sTC8YYArHilXmqnsstOivY6ygQ2N27L1zBwk")
 
     # Si aucune conf , autorisation de connexion à twitter via OAuth
-    if not(config.has_option('twitterapi','access_token') and
-           config.has_option('twitterapi','access_password')):
+    if not(config.has_option('twitterapi', 'access_token') and
+           config.has_option('twitterapi', 'access_password')):
         # On ouvre le navigateur web pour récupếrer le numéro d'autorisation
         while True:
             try:
                 webbrowser.open(auth.get_authorization_url())
-                var  = raw_input(_("Entrez le token !\n"))
+                var = raw_input(_("Entrez le token !\n"))
                 auth.get_access_token(var)
-            except Exception,e:
+            except Exception, e:
                 print(str(e))
                 continue
             break
@@ -113,7 +115,7 @@ def checkconfig():
         access_token = str(var).split("&")[1].split("=")[1]
         # écrire le fichier de conf avec les informations récupérées
         try:
-            cfgfile = open(__configfile__,'w')
+            cfgfile = open(__configfile__, 'w')
             if not(config.has_section('twitterapi')):
                 config.add_section('twitterapi')
             config.set('twitterapi', 'access_token', access_token)
@@ -123,9 +125,10 @@ def checkconfig():
             pass
         finally:
             cfgfile.close()
-    else: # Si un fichier de conf existait déjà
+    else:  # Si un fichier de conf existait déjà
         auth.set_access_token(access_token, access_password)
     return auth
+
 
 def login():
     """ Se connecter à l'api twitter via tweepy """
@@ -134,7 +137,7 @@ def login():
     # On vérifie la connexion à l'api en récupérant le user name
     try:
         twittername = api.me().screen_name
-    except Exception,e:
+    except Exception, e:
         if 'Unable to get username' in (str(e)):
             printout(_(u"Impossible de s'authentifier avec l'api Twitter.\
 Fonctionne en mode déconnecté"), RED)
@@ -143,6 +146,7 @@ Fonctionne en mode déconnecté"), RED)
     printout(_(u"Authentifié avec le user twitter {0}").format(twittername.decode('utf-8')), GREEN)
     print("\n")
     return api, auth, twittername
+
 
 def get_friends_followers(api):
     """Renvoie la liste des id des friends et followers"""
@@ -159,25 +163,29 @@ def get_friends_followers(api):
 
     return friend_id, follower_id
 
+
 def get_diff(liste1, liste2):
     """Renvoie les objets de liste1 qui ne sont pas dans liste2"""
     return list(set(liste1).difference(set(liste2)))
+
 
 def follow_users(api, user):
     """Suivre une personne"""
     try:
         api.create_friendship(user)
         printout(_(u"Vous suivez maintenant {0}").format(api.get_user(user).screen_name.decode('utf-8')), GREEN)
-    except Exception,e:
+    except Exception, e:
         print(e)
+
 
 def unfollow_user(api, user):
     """Cesser de suivre une personne"""
     try:
         api.destroy_friendship(user)
         printout(_(u"Vous ne suivez plus {0}").format(api.get_user(user).screen_name.decode('utf-8')), GREEN)
-    except Exception,e:
+    except Exception, e:
         print(e)
+
 
 def main(argv=None):
     """ Point d'entrée """
@@ -188,10 +196,10 @@ def main(argv=None):
     # Traitement des arguments
     if argv is None:
         argv = sys.argv
-    if len(argv)  == 1:
+    if len(argv) == 1:
         help()
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "r:ahfut:o:s:d:", \
+        opts, args = getopt.getopt(sys.argv[1:], "r:ahfut:o:s:d:",
        ["report", "api", "help", "follow", "unfollow", "tweet=", "output=", "search=", "database="])
     except getopt.GetoptError, err:
         print(err)
@@ -199,13 +207,12 @@ def main(argv=None):
         sys.exit()
     # traitement des options
     for option, value in opts:
-        if option in ('-a','--api'):
+        if option in ('-a', '--api'):
             api, auth, twittername = login()
             res = api.rate_limit_status()
             rtime = res['reset_time']
             rhits = res['remaining_hits']
             hlimit = res['hourly_limit']
-
 
             from dateutil.parser import parse
             drtime = parse(rtime)
@@ -222,7 +229,7 @@ def main(argv=None):
             printout(_("Heure du prochain reset: "), BLUE)
             print rlocaltime.strftime("%H:%M %Y-%m-%d")
 
-        if option in ('-r','--report'):
+        if option in ('-r', '--report'):
             api, auth, twittername = login()
 
             checkdb()
@@ -235,9 +242,9 @@ def main(argv=None):
             fmois = c.fetchone()[0]
             # Requête des données à exporter
             dd = dict()
-            for a in range (int(dmois), int(fmois) + 1):
+            for a in range(int(dmois), int(fmois) + 1):
                 result = []
-                for m in range (1, 13):
+                for m in range(1, 13):
                     mois = ('{num:02d}'.format(num=m))
                     c.execute("select count(*) from twitter where substr(date, 1,4)  = '{0}' and substr(date, 6,2) = '{1}'".format(a, mois))
                     result.append(c.fetchone()[0])
@@ -260,15 +267,15 @@ def main(argv=None):
                     saut = 200
                 if nb == 3:
                     saut = 400
-                treport.ecrireLegende(saut,annee,donnees)
-                treport.addPie(saut,donnees)
+                treport.ecrireLegende(saut, annee, donnees)
+                treport.addPie(saut, donnees)
             treport.save()
             printout(_(u"Report {0} créé !").format(value), GREEN)
             print("\n")
             sys.exit(0)
 
-        if option in ('-d','--database'):
-            if value in ('u','update'):
+        if option in ('-d', '--database'):
+            if value in ('u', 'update'):
                 # Se connecter à l'api twitter
                 api, auth, twittername = login()
                 # Mettre à jour la base de données
@@ -277,7 +284,7 @@ def main(argv=None):
                 print("\n")
                 nb = db.update(api, twittername)
                 printout(_(u"Ajout de {0} tweet(s) dans la base de données.").format(nb), GREEN)
-            if value in ('c','create'):
+            if value in ('c', 'create'):
                 # Se connecter à l'api twitter
                 api, auth, twittername = login()
                 # Créer la base de données
@@ -310,35 +317,35 @@ def main(argv=None):
         if option in ("-s", "--search"):
             # Rechercher un motif dans la base des tweets
             checkdb()
-            printout(_(u"Recherche de {0} dans vos anciens tweets...")\
-                      .format(value.decode('utf-8')), YELLOW)
+            printout(_(u"Recherche de {0} dans vos anciens tweets...")
+                    .format(value.decode('utf-8')), YELLOW)
             print("\n")
             # la méthode search retourne un tuple avec les champs
             # qui contiennent le motif
             db = cltwitdb(__dblocation__, __tablename__)
-            results = db.search(value,"tweet")
+            results = db.search(value, "tweet")
             for result in results:
-                print((u"{0} -> {1}\n{2}\n\n").format(result[1].decode('utf-8'),result[4].decode('utf-8'), result[2].decode('utf-8')))
+                print((u"{0} -> {1}\n{2}\n\n").format(result[1].decode('utf-8'), result[4].decode('utf-8'), result[2].decode('utf-8')))
 
         if option in ("-u", "--unfollow"):
             # Se connecter à l'api twitter
             api, auth, twittername = login()
             # Créer les liste friend et followers (par id)
-            friend_id,follower_id = get_friends_followers(api)
+            friend_id, follower_id = get_friends_followers(api)
             # Création des listes follow et unfollow
             follow_liste = get_diff(follower_id, friend_id)
             unfollow_liste = get_diff(friend_id, follower_id)
             # Un-follow
-            printout(_("Vous suivez {0} personnes qui ne vous suivent pas.")\
-                      .format(len(unfollow_liste)), YELLOW)
+            printout(_("Vous suivez {0} personnes qui ne vous suivent pas.")
+                    .format(len(unfollow_liste)), YELLOW)
             print("\n")
             printout(_("Voulez changer cela ? (o/N)"), BLUE)
             print("\n")
             reponse = raw_input("> ")
             if (reponse.lower() == 'o' or reponse.lower() == 'y'):
                 for user in unfollow_liste:
-                    printout(_("Voulez-vous cesser de suivre {0} ? (o/N)")\
-                              .format(api.get_user(user).screen_name), BLUE)
+                    printout(_("Voulez-vous cesser de suivre {0} ? (o/N)")
+                            .format(api.get_user(user).screen_name), BLUE)
                     print("\n")
                     reponse = raw_input("> ")
                     if (reponse.lower() == 'o' or reponse.lower() == 'y'):
@@ -354,22 +361,22 @@ def main(argv=None):
             unfollow_liste = get_diff(friend_id, follower_id)
 
             # follow
-            printout(_("{0} personnes vous suivent alors que vous ne les suivez pas.")\
-                      .format(len(follow_liste)), YELLOW)
+            printout(_("{0} personnes vous suivent alors que vous ne les suivez pas.")
+                    .format(len(follow_liste)), YELLOW)
             print("\n")
             printout(_("Voulez changer cela ? (o/N)"), BLUE)
             print("\n")
             reponse = raw_input("> ")
             if (reponse.lower() == 'o' or reponse.lower() == 'y'):
                 for user in follow_liste:
-                    printout(_("Voulez-vous suivre {0} ? (o/N)"\
-                                .format(api.get_user(user).screen_name)), BLUE)
+                    printout(_("Voulez-vous suivre {0} ? (o/N)"
+                            .format(api.get_user(user).screen_name)), BLUE)
                     print("\n")
                     reponse = raw_input("> ")
                     if (reponse.lower() == 'o' or reponse.lower() == 'y'):
                         follow_users(api, user)
 
-        if option in ("-t","--tweet"):
+        if option in ("-t", "--tweet"):
             # Se connecter à l'api twitter
             api, auth, twittername = login()
             # Envoyer un tweet
@@ -384,6 +391,7 @@ fait {0} caractères de trop").format(str(len(value) - 140).decode('utf-8')), RE
 
         if option in ("-h", "--help"):
             help()
+
 
 def help():
     printout(_(u"""
@@ -412,7 +420,7 @@ le fichier FILENAME.csv
     u (update)
             *Mettre à jour la base de données des tweets
 """), BLUE
-)
+             )
 
 if __name__ == "__main__":
     try:
