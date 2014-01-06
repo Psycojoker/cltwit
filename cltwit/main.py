@@ -9,7 +9,7 @@ Date : 2013
 from sqlite2csv import sqlite2csv
 from cltwitdb import cltwitdb
 from utils import LocalTimezone
-from cltwitreport import TweetsReport 
+from cltwitreport import TweetsReport
 import ConfigParser
 import webbrowser
 import os, sys
@@ -203,11 +203,11 @@ def main(argv=None):
             rtime = res['reset_time']
             rhits = res['remaining_hits']
             hlimit = res['hourly_limit']
-            
+
 
             from dateutil.parser import parse
             drtime = parse(rtime)
-            
+
             printout(_("Informations sur l'utilisation de l'api Twitter"), YELLOW)
             print("\n")
             # Définir l'heure locale qui correspond à l'heure renvoyée
@@ -228,7 +228,7 @@ def main(argv=None):
             conn = sqlite3.connect(__dblocation__)
             c = conn.cursor()
             c.execute("select substr(date, 1,4)  from twitter order by date asc limit 1")
-            dmois = c.fetchone()[0] 
+            dmois = c.fetchone()[0]
             c.execute("select substr(date, 1,4)  from twitter order by date desc limit 1")
             fmois = c.fetchone()[0]
             # Requête des données à exporter
