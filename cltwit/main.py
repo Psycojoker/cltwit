@@ -304,6 +304,7 @@ def main(argv=None):
             conn.close()
             printout(_(u"Fichier csv {0} créé.").format(value.decode('utf-8')), GREEN)
             sys.exit()
+
         if option in ("-s", "--search"):
             # Rechercher un motif dans la base des tweets
             checkdb()
