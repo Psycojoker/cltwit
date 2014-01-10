@@ -381,13 +381,14 @@ def main(argv=None):
             # Se connecter à l'api twitter
             api, auth, twittername = login()
             # Envoyer un tweet
-            if len(re.sub("https://\S*", "X"*23, re.sub("http://\S*", "X"*22, value))) < 141:
+            tweet_size = len(re.sub("https://\S*", "X"*23, re.sub("http://\S*", "X"*22, value)))
+            if tweet_size < 141:
                 api.update_status(value)
                 print("\n")
                 printout(_(u"Tweet envoyé !"), GREEN)
             else:
                 printout(_(u"La limite pour un tweet est de 140 caractères, votre message \
-fait {0} caractères de trop").format(str(len(value) - 140).decode('utf-8')), RED)
+fait {0} caractères de trop").format(str(tweet_size - 140).decode('utf-8')), RED)
             sys.exit()
 
         if option in ("-h", "--help"):
